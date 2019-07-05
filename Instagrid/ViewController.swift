@@ -29,18 +29,38 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     var imagePicker = UIImagePickerController()
     var selectedButton: UIButton!
     
-    // Reset the selected buttonGrid
+    /// Do any additional setup after loading the view
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        grid.isHidden = true
+        chooseLabel.isHidden = false
+        imagePicker.delegate = self
+    }
+    
+    /// Do any additional setup when orientation device changes
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        if UIDevice.current.orientation.isPortrait {
+            swipeLabel.text = "Swipe up to share !"
+            arrow.transform = CGAffineTransform.identity
+            gestureOrientation.direction = .up
+        } else {
+            swipeLabel.text = "Swipe left to share !"
+            arrow.transform = CGAffineTransform.init(rotationAngle: CGFloat(-Double.pi / 2))
+            gestureOrientation.direction = .left
+        }
+    }
+    
+    /// Reset the selected buttonGrid
     func resetGridButtonState() {
         buttonGrid1.isSelected = false
         buttonGrid2.isSelected = false
         buttonGrid3.isSelected = false
     }
     
-    // Showing selected grids
+    /// Showing selected grids
     @IBAction func showGrid1(_ sender: UIButton) {
         resetGridButtonState()
         sender.isSelected = true
-        sender.imageView?.contentMode = .scaleAspectFill
         chooseLabel.isHidden = true
         grid.isHidden = false
         button2.isHidden = true
@@ -65,7 +85,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         button2.isHidden = false
     }
     
-    // Put selected image on button
+    /// Put selected image on button
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let imagePicked = info[UIImagePickerController.InfoKey.editedImage] as? UIImage
         selectedButton.setImage(imagePicked, for: .normal)
@@ -74,7 +94,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismiss(animated: true, completion: nil)
     }
     
-    // Allow to choose and edit selected image from library
+    /// Allow to choose and edit selected image from library
     @IBAction func chooseImage(_ sender: UIButton) {
         selectedButton = sender
         imagePicker.sourceType = .photoLibrary
@@ -82,7 +102,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         present(imagePicker, animated: true, completion: nil)
     }
     
-    // Animates the swipe according to the orientation
+    /// Animates the swipe according to the orientation
     func animateSwipe() {
         if UIDevice.current.orientation == .landscapeLeft || UIDevice.current.orientation == .landscapeRight {
             UIView.animate(withDuration: 0.2, animations: {
@@ -95,12 +115,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
     }
     
-    // Transforms grid into image to share
+    /// Transforms grid into image to share
     func createPicture() {
-        let renderer = UIGraphicsImageRenderer(size: rectangle!.bounds.size)
+        let renderer = UIGraphicsImageRenderer(size: rectangle.bounds.size)
         let capturedImage = renderer.image {
             (ctx) in
-            rectangle!.drawHierarchy(in: rectangle!.bounds, afterScreenUpdates: true)
+            rectangle.drawHierarchy(in: rectangle.bounds, afterScreenUpdates: true)
         }
         let activityController = UIActivityViewController (activityItems: [capturedImage], applicationActivities: nil)
         present(activityController, animated: true)
@@ -111,32 +131,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
     }
     
-    // Allow to share the grid
+    /// Allow to share the grid
     @IBAction func shareUp(_ sender: UISwipeGestureRecognizer) {
         animateSwipe()
         createPicture()
     }
-    
-    // Do any additional setup after loading the view
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        grid.isHidden = true
-        chooseLabel.isHidden = false
-        imagePicker.delegate = self
-    }
-    
-    // Do any additional setup when orientation device changes
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        if UIDevice.current.orientation.isPortrait {
-            swipeLabel.text = "Swipe up to share !"
-            arrow.transform = CGAffineTransform.identity
-            gestureOrientation.direction = .up
-        } else {
-            swipeLabel.text = "Swipe left to share !"
-            arrow.transform = CGAffineTransform.init(rotationAngle: CGFloat(-Double.pi / 2))
-            gestureOrientation.direction = .left
-        }
-    }
-    
+   
 }
 
